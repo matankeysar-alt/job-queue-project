@@ -3,19 +3,19 @@ Phase 1: Infrastructure & Setup (Environment Configuration)
 
 [x] Install IDE (IntelliJ IDEA Ultimate) and Git.
 
-[ ] Create a GitHub repository.
+[x] Create a GitHub repository.
 
-[ ] Generate initial Spring Boot project (Spring Web) and perform initial Push.
+[x] Generate initial Spring Boot project (Spring Web) and perform initial Push.
 
 Phase 2: Core Engine (No Network or Database)
 
-[ ] Define Task interface (with execute method).
+[x] Define Task interface (with execute method).
 
-[ ] Create DummyTask class simulating work (Sleep).
+[x] Create DummyTask class simulating work (Sleep).
 
-[ ] Create PriorityBlockingQueue (Bounded queue for memory management).
+[x] Create PriorityBlockingQueue (Bounded queue for memory management).
 
-[ ] Set up ThreadPoolExecutor (Worker pool) listening to the queue.
+[x] Set up ThreadPoolExecutor (Worker pool) listening to the queue.
 
 Phase 3: API & Network Shell (Client-Server)
 
