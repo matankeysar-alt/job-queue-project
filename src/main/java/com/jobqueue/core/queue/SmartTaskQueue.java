@@ -2,7 +2,9 @@ package com.jobqueue.core.queue;
 import com.jobqueue.core.model.Task;
 import java.util.Comparator;
 import java.util.concurrent.PriorityBlockingQueue;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SmartTaskQueue {
 
     private final int MAX_CAPACITY = 100;

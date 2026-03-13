@@ -19,7 +19,7 @@ Phase 2: Core Engine (No Network or Database)
 
 Phase 3: API & Network Shell (Client-Server)
 
-[ ] Write Controller for POST requests (Injecting tasks to the queue).
+[x] Write Controller for POST requests (Injecting tasks to the queue).
 
 [ ] Write Controller for GET requests (Fetching queue state and statuses).
 
