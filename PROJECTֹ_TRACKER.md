@@ -27,7 +27,7 @@ Phase 3: API & Network Shell (Client-Server)
 
 Phase 4: Database (Persistence)
 
-[ ] Connect project to a DB (Initially in-memory H2, later PostgreSQL/MySQL).
+[x] Connect project to a DB (Initially in-memory H2, later PostgreSQL/MySQL).
 
 [ ] Create an appropriate table and save every incoming task to the DB.
 
