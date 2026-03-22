@@ -29,9 +29,9 @@ Phase 4: Database (Persistence)
 
 [x] Connect project to a DB (Initially in-memory H2, later PostgreSQL/MySQL).
 
-[ ] Create an appropriate table and save every incoming task to the DB.
+[x] Create an appropriate table and save every incoming task to the DB.
 
-[ ] Real-time task status updates in DB (Pending -> Running -> Completed/Failed).
+[x] Real-time task status updates in DB (Pending -> Running -> Completed/Failed).
 
 Phase 5: Advanced Tasks (AI Integration)
 

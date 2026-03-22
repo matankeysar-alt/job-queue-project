@@ -33,11 +33,11 @@ public class DummyTask implements Task {
         return priority;
     }
 
-    public int getTaskId() {
+    public int getId() {
         return taskId;
     }
 
-    public void setTaskId(int task_id) {
+    public void setId(int task_id) {
         this.taskId = task_id;
     }
 
