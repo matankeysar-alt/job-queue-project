@@ -34,4 +34,16 @@ public class SmartTaskQueue {
         return queue.take(); // blocking method - if the queue is empty, the thread is blocked.
     }
 
+    public int getPendingTasksCount() {
+        return queue.size();
+    }
+
+    public int getMaxCapacity() {
+        return MAX_CAPACITY;
+    }
+
+    public int getRemainingCapacity() {
+        return MAX_CAPACITY - queue.size();
+    }
+
 }

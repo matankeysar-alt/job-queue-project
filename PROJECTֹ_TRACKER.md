@@ -21,9 +21,9 @@ Phase 3: API & Network Shell (Client-Server)
 
 [x] Write Controller for POST requests (Injecting tasks to the queue).
 
-[ ] Write Controller for GET requests (Fetching queue state and statuses).
+[x] Write Controller for GET requests (Fetching queue state and statuses).
 
-[ ] Manual testing via Postman or browser to ensure the server receives tasks.
+[x] Manual testing via Postman or browser to ensure the server receives tasks.
 
 Phase 4: Database (Persistence)
 

@@ -61,4 +61,21 @@ public class TaskController {
                     .body("Server is busy: Task queue is at full capacity. Request rejected.");
         }
     }
+
+    /**
+     * Handles GET requests to retrieve the current status of the task queue.
+     *
+     * @return ResponseEntity containing the QueueStatusDTO mapped to a JSON format.
+     */
+    @GetMapping("/status")
+    public ResponseEntity<QueueStatusDTO> getQueueStatus() {
+
+        int pending = taskQueue.getPendingTasksCount();
+        int remaining = taskQueue.getRemainingCapacity();
+        int max = taskQueue.getMaxCapacity();
+
+        QueueStatusDTO statusDTO = new QueueStatusDTO(pending, remaining, max);
+
+        return ResponseEntity.ok(statusDTO);
+    }
 }
