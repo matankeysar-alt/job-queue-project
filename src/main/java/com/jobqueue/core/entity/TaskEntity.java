@@ -1,5 +1,6 @@
 package com.jobqueue.core.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -15,6 +16,9 @@ public class TaskEntity {
     private String status;
     private LocalDateTime createdAT;
 
+    @Column(length = 5000)
+    private String result;
+
     public TaskEntity() {}
 
     public TaskEntity(Integer id, String taskType, String status) {
@@ -24,7 +28,7 @@ public class TaskEntity {
         this.createdAT = LocalDateTime.now();
     }
 
-    //getters and setters
+    // Getters and Setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -36,4 +40,7 @@ public class TaskEntity {
 
     public LocalDateTime getCreatedAT() { return createdAT; }
     public void setCreatedAT(LocalDateTime createdAT) { this.createdAT = createdAT; }
+
+    public String getResult() { return result; }
+    public void setResult(String result) { this.result = result; }
 }

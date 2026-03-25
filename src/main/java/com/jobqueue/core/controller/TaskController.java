@@ -1,14 +1,17 @@
 package com.jobqueue.core.controller;
 
+import com.jobqueue.core.dto.QueueStatusDTO;
+import com.jobqueue.core.dto.TaskRequestDTO;
+import com.jobqueue.core.dto.openAi.TaskResponseDTO;
 import com.jobqueue.core.entity.TaskEntity;
 import com.jobqueue.core.queue.SmartTaskQueue;
 import com.jobqueue.core.model.Task;
 import com.jobqueue.core.repository.TaskRepository;
-import com.jobqueue.core.tasks.DummyTask;
+import com.jobqueue.core.service.OpenAiService;
+import com.jobqueue.core.tasks.AiSummarizeTask;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -21,15 +24,17 @@ public class TaskController {
 
     private final SmartTaskQueue taskQueue;
     private final TaskRepository taskRepository;
+    private final OpenAiService openAiService;
     private final AtomicInteger taskIdGenerator = new AtomicInteger(1);
 
     /**
      * Constructor-based dependency injection.
      * Spring automatically injects the required beans at runtime.
      */
-    public TaskController(SmartTaskQueue taskQueue, TaskRepository taskRepository) {
+    public TaskController(SmartTaskQueue taskQueue, TaskRepository taskRepository, OpenAiService openAiService) {
         this.taskQueue = taskQueue;
         this.taskRepository = taskRepository;
+        this.openAiService = openAiService;
     }
 
     /**
@@ -49,8 +54,11 @@ public class TaskController {
         TaskEntity entity = new TaskEntity(taskId, request.type(), "PENDING");
         taskRepository.save(entity);
 
-        // Create the logical task object and attempt to add it to the queue
-        Task task = new DummyTask(taskId, 5000, 10);
+        String textToProcess = request.text();
+        // Create the logical task object (AI Summarize) and pass the required dependencies
+        Task task = new AiSummarizeTask(taskId, textToProcess, 10, this.openAiService);
+
+        // Attempt to add it to the queue
         boolean isEnqueued = taskQueue.submitTask(task);
 
         if (isEnqueued) {
@@ -77,5 +85,23 @@ public class TaskController {
                 taskQueue.getMaxCapacity()
         );
         return ResponseEntity.ok(status);
+    }
+
+    /**
+     * Endpoint to retrieve a specific task's details and result.
+     * @param id The unique ID of the task.
+     * @return Task details if found, or 404 Not Found.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskResponseDTO> getTask(@PathVariable int id) {
+        return taskRepository.findById(id)
+                .map(entity -> new TaskResponseDTO(
+                        entity.getId(),
+                        entity.getTaskType(),
+                        entity.getStatus(),
+                        entity.getResult() // This will be null until the task is COMPLETED
+                ))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

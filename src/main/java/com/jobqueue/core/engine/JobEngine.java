@@ -4,6 +4,7 @@ import com.jobqueue.core.entity.TaskEntity;
 import com.jobqueue.core.model.Task;
 import com.jobqueue.core.queue.SmartTaskQueue;
 import com.jobqueue.core.repository.TaskRepository;
+import com.jobqueue.core.tasks.AiSummarizeTask; // Import the specific task type
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,6 @@ public class JobEngine {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     Task task = queue.takeTask();
-
                     // Wrapping the execution with status updates
                     threadPool.submit(() -> processTask(task));
                 } catch (InterruptedException e) {
@@ -50,26 +50,36 @@ public class JobEngine {
      */
     private void processTask(Task task) {
         // 1. Update status to RUNNING in the database
-        updateTaskStatus(task.getId(), "RUNNING");
+        updateTaskInDb(task, "RUNNING");
 
         try {
-            // 2. Perform the actual work
+            // 2. Perform the actual work (HTTP call to OpenAI happens here)
             task.execute();
 
-            // 3. Update status to COMPLETED upon success
-            updateTaskStatus(task.getId(), "COMPLETED");
+            // 3. Update status to COMPLETED and save the result
+            updateTaskInDb(task, "COMPLETED");
         } catch (Exception e) {
             // 4. Update status to FAILED if an error occurs
-            updateTaskStatus(task.getId(), "FAILED");
+            updateTaskInDb(task, "FAILED");
             System.err.println("Task [" + task.getId() + "] failed: " + e.getMessage());
         }
     }
 
-    private void updateTaskStatus(int taskId, String newStatus) {
-        taskRepository.findById(taskId).ifPresent(entity -> {
+    /**
+     * Updated helper to handle both status updates and result persistence.
+     */
+    private void updateTaskInDb(Task task, String newStatus) {
+        taskRepository.findById(task.getId()).ifPresent(entity -> {
             entity.setStatus(newStatus);
+
+            // If the task is an AI task, we extract the result and save it to the entity
+            if (task instanceof AiSummarizeTask summarizeTask) {
+                String result = summarizeTask.getSummaryResult();
+                entity.setResult(result);
+            }
+
             taskRepository.save(entity);
-            System.out.println("Database Updated: Task [" + taskId + "] is now " + newStatus);
+            System.out.println("Database Updated: Task [" + task.getId() + "] is now " + newStatus);
         });
     }
 }

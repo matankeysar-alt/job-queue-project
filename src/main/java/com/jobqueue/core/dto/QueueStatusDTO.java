@@ -1,4 +1,4 @@
-package com.jobqueue.core.controller;
+package com.jobqueue.core.dto;
 
 /**
  * A Data Transfer Object (DTO) representing the current state of the task queue.
