@@ -35,9 +35,9 @@ Phase 4: Database (Persistence)
 
 Phase 5: Advanced Tasks (AI Integration)
 
-[ ] Add AiSummarizeTask implementing the Task interface.
+[x] Add AiSummarizeTask implementing the Task interface.
 
-[ ] Connect to OpenAI API for text summarization as an asynchronous task.
+[x] Connect to OpenAI API for text summarization as an asynchronous task.
 
 Phase 6: Automation & Load Testing (QA Automation)
 
