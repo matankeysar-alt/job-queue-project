@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SmartTaskQueue {
 
-    private final int MAX_CAPACITY = 100;
+    private final int MAX_CAPACITY = 50;
     private final PriorityBlockingQueue<Task> queue;
 
     public SmartTaskQueue() {
@@ -20,8 +20,7 @@ public class SmartTaskQueue {
         this.queue = new PriorityBlockingQueue<Task>(MAX_CAPACITY, comp);
     }
 
-    public boolean submitTask(Task task) {
-
+    public synchronized boolean submitTask(Task task) {
         if (queue.size() < MAX_CAPACITY) {
             return queue.offer(task);
         }

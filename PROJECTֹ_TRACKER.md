@@ -41,11 +41,11 @@ Phase 5: Advanced Tasks (AI Integration)
 
 Phase 6: Automation & Load Testing (QA Automation)
 
-[ ] Write a Python script or use JMeter/Postman.
+[x] Set up an Apache JMeter Test Plan for the task creation endpoint.
 
-[ ] Send 10,000 concurrent requests to the server.
+[x] Send 1,000 concurrent requests to the server.
 
-[ ] Verify queue backpressure triggers in time, urgent tasks are prioritized, and server doesn't crash.
+[x] Verify queue backpressure triggers in time, urgent tasks are prioritized, and server doesn't crash.
 
 Phase 7: User Interface (Frontend Dashboard)
 

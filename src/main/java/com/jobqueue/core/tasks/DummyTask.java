@@ -17,8 +17,10 @@ public class DummyTask implements Task {
     public void execute()  {
 
         try {
+            int actualSleep = (this.sleepDuration == 0) ? 2000 : this.sleepDuration;
+
             System.out.println("Task " + taskId + " started");
-            Thread.sleep(sleepDuration);
+            Thread.sleep(actualSleep);
             System.out.println("Task " + taskId + " finished.");
         }
 

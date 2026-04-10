@@ -4,12 +4,13 @@ import com.jobqueue.core.entity.TaskEntity;
 import com.jobqueue.core.model.Task;
 import com.jobqueue.core.queue.SmartTaskQueue;
 import com.jobqueue.core.repository.TaskRepository;
-import com.jobqueue.core.tasks.AiSummarizeTask; // Import the specific task type
+import com.jobqueue.core.tasks.AiSummarizeTask;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore; // <-- הוספנו את מחלקת הסמפור
 
 @Component
 public class JobEngine {
@@ -17,11 +18,13 @@ public class JobEngine {
     private final SmartTaskQueue queue;
     private final ExecutorService threadPool;
     private final TaskRepository taskRepository;
+    private final Semaphore availableWorkers;
 
     public JobEngine(SmartTaskQueue queue, TaskRepository taskRepository) {
         this.queue = queue;
         this.taskRepository = taskRepository;
         this.threadPool = Executors.newFixedThreadPool(10);
+        this.availableWorkers = new Semaphore(10);
     }
 
     /**
@@ -32,9 +35,17 @@ public class JobEngine {
         Thread dispatcherThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
+                    availableWorkers.acquire();
+
                     Task task = queue.takeTask();
-                    // Wrapping the execution with status updates
-                    threadPool.submit(() -> processTask(task));
+
+                    threadPool.submit(() -> {
+                        try {
+                            processTask(task);
+                        } finally {
+                            availableWorkers.release();
+                        }
+                    });
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     System.out.println("Engine interrupted, Stopping dispatcher...");

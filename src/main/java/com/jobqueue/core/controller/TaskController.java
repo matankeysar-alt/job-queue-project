@@ -9,6 +9,7 @@ import com.jobqueue.core.model.Task;
 import com.jobqueue.core.repository.TaskRepository;
 import com.jobqueue.core.service.OpenAiService;
 import com.jobqueue.core.tasks.AiSummarizeTask;
+import com.jobqueue.core.tasks.DummyTask;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,24 +50,27 @@ public class TaskController {
         // Generate a thread-safe unique ID
         int taskId = taskIdGenerator.getAndIncrement();
 
-        // Persist task details to the database (Ensures data persistence)
-        // Using the task type provided by the client in the request body
+        // Persist task details to the database
         TaskEntity entity = new TaskEntity(taskId, request.type(), "PENDING");
         taskRepository.save(entity);
 
-        String textToProcess = request.text();
-        // Create the logical task object (AI Summarize) and pass the required dependencies
-        Task task = new AiSummarizeTask(taskId, textToProcess, 10, this.openAiService);
+        Task task;
+        // Fix: Apply Polymorphism based on the requested task type
+        if ("DUMMY".equalsIgnoreCase(request.type()) || "DUMMY_TASK".equalsIgnoreCase(request.type())) {
+            // Create a dummy task with 2000ms (2 seconds) sleep
+            task = new DummyTask(taskId, 2000, 10);
+        } else {
+            // Default to AI task if it's not a DUMMY
+            task = new AiSummarizeTask(taskId, request.text(), 10, this.openAiService);
+        }
 
-        // Attempt to add it to the queue
+        // Attempt to add it to the queue (This will now safely fail if queue is full thanks to 'synchronized')
         boolean isEnqueued = taskQueue.submitTask(task);
 
         if (isEnqueued) {
             return ResponseEntity.ok("Task [" + taskId + "] of type '" + request.type() + "' saved and enqueued.");
         } else {
-            /* * Applying Backpressure: If the queue is full, we return 503 Service Unavailable.
-             * The task remains in the DB as PENDING for future recovery.
-             */
+            /* * Applying Backpressure: If the queue is full, we return 503 Service Unavailable. */
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("Backpressure: Task " + taskId + " saved to DB but queue is full. Try again later.");
         }
