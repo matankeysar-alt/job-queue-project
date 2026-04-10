@@ -28,23 +28,12 @@ public class TaskController {
     private final OpenAiService openAiService;
     private final AtomicInteger taskIdGenerator = new AtomicInteger(1);
 
-    /**
-     * Constructor-based dependency injection.
-     * Spring automatically injects the required beans at runtime.
-     */
     public TaskController(SmartTaskQueue taskQueue, TaskRepository taskRepository, OpenAiService openAiService) {
         this.taskQueue = taskQueue;
         this.taskRepository = taskRepository;
         this.openAiService = openAiService;
     }
 
-    /**
-     * Endpoint to add a new task.
-     * Workflow: Generate ID -> Persist to DB -> Enqueue in RAM -> Check for Backpressure.
-     *
-     * @param request Data Transfer Object containing the task details.
-     * @return ResponseEntity indicating success or service unavailability (Queue full).
-     */
     @PostMapping("/add")
     public ResponseEntity<String> addTask(@RequestBody TaskRequestDTO request) {
         // Generate a thread-safe unique ID
@@ -54,33 +43,30 @@ public class TaskController {
         TaskEntity entity = new TaskEntity(taskId, request.type(), "PENDING");
         taskRepository.save(entity);
 
+        int sleep = request.sleepDuration() != 0 ? request.sleepDuration() : 2000;
+        int priority = request.priority() != 0 ? request.priority() : 10;
+        // --------------------------------------------------------
+
         Task task;
         // Fix: Apply Polymorphism based on the requested task type
         if ("DUMMY".equalsIgnoreCase(request.type()) || "DUMMY_TASK".equalsIgnoreCase(request.type())) {
-            // Create a dummy task with 2000ms (2 seconds) sleep
-            task = new DummyTask(taskId, 2000, 10);
+            task = new DummyTask(taskId, sleep, priority);
         } else {
-            // Default to AI task if it's not a DUMMY
-            task = new AiSummarizeTask(taskId, request.text(), 10, this.openAiService);
+            task = new AiSummarizeTask(taskId, request.text(), priority, this.openAiService);
         }
 
-        // Attempt to add it to the queue (This will now safely fail if queue is full thanks to 'synchronized')
+        // Attempt to add it to the queue
         boolean isEnqueued = taskQueue.submitTask(task);
 
         if (isEnqueued) {
-            return ResponseEntity.ok("Task [" + taskId + "] of type '" + request.type() + "' saved and enqueued.");
+            return ResponseEntity.ok("Task [" + taskId + "] of type '" + request.type() + "' with Priority [" + priority + "] saved and enqueued.");
         } else {
-            /* * Applying Backpressure: If the queue is full, we return 503 Service Unavailable. */
+            /* Applying Backpressure */
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("Backpressure: Task " + taskId + " saved to DB but queue is full. Try again later.");
         }
     }
 
-    /**
-     * Endpoint to retrieve the current health and capacity of the task queue.
-     *
-     * @return ResponseEntity containing a QueueStatusDTO mapped to JSON.
-     */
     @GetMapping("/status")
     public ResponseEntity<QueueStatusDTO> getStatus() {
         QueueStatusDTO status = new QueueStatusDTO(
@@ -91,11 +77,6 @@ public class TaskController {
         return ResponseEntity.ok(status);
     }
 
-    /**
-     * Endpoint to retrieve a specific task's details and result.
-     * @param id The unique ID of the task.
-     * @return Task details if found, or 404 Not Found.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<TaskResponseDTO> getTask(@PathVariable int id) {
         return taskRepository.findById(id)
@@ -103,7 +84,7 @@ public class TaskController {
                         entity.getId(),
                         entity.getTaskType(),
                         entity.getStatus(),
-                        entity.getResult() // This will be null until the task is COMPLETED
+                        entity.getResult()
                 ))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
