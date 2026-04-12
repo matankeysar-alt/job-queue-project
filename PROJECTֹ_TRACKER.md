@@ -49,13 +49,13 @@ Phase 6: Automation & Load Testing (QA Automation)
 
 Phase 7: User Interface (Frontend Dashboard)
 
-[ ] Use AI (Cursor/Claude) to write a clean HTML/JS page.
+[x] Use AI to write a clean HTML/JS page.
 
-[ ] Connect the page to the API to display task table, real-time statuses, and a test injection button.
+[x] Connect the page to the API to display task table, real-time statuses, and a test injection button.
 
 Phase 8: Packaging & Release (Deployment & Portfolio)
 
-[ ] Package project into a Docker Container.
+[x] Package project into a Docker Container.
 
 [ ] Write a professional GitHub README.md (incl. screenshots, architecture explanation, and QA summary).
 

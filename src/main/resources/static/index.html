@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Queue Dashboard</title>
     <style>
-        /* CSS: עיצוב הדף - מראה מודרני ונקי */
         :root {
             --bg-color: #f4f7f6;
             --card-bg: #ffffff;
@@ -36,7 +35,6 @@
             gap: 20px;
         }
 
-        /* כרטיסיות הסטטוס העליונות */
         .stats-row {
             display: flex;
             justify-content: space-between;
@@ -55,7 +53,6 @@
         .stat-card h3 { margin: 0; font-size: 1.2rem; color: #7f8c8d; }
         .stat-card .value { font-size: 2rem; font-weight: bold; margin-top: 10px; }
 
-        /* אזור הוספת משימה וטבלה */
         .panel {
             background: var(--card-bg);
             padding: 20px;
@@ -88,7 +85,6 @@
 
         button:hover { background-color: #2980b9; }
 
-        /* עיצוב הטבלה */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -168,7 +164,6 @@
 <script>
     const API_BASE_URL = 'http://localhost:8080/api/tasks';
 
-    // פונקציה להחלפת שדות הקלט בהתאם לסוג המשימה (UI/UX)
     function toggleInputs() {
         const type = document.getElementById('taskType').value;
         if (type === 'DUMMY') {
@@ -180,7 +175,6 @@
         }
     }
 
-    // 1. משיכת סטטוס התור הכללי (Polling)
     async function fetchQueueStatus() {
         try {
             const response = await fetch(`${API_BASE_URL}/status`);
@@ -194,16 +188,14 @@
         }
     }
 
-    // 2. משיכת כל המשימות והצגתן בטבלה (Polling)
     async function fetchAllTasks() {
         try {
             const response = await fetch(`${API_BASE_URL}/all`);
             const tasks = await response.json();
 
             const tbody = document.getElementById('tasksTableBody');
-            tbody.innerHTML = ''; // ניקוי הטבלה הישנה
+            tbody.innerHTML = '';
 
-            // בניית השורות החדשות
             tasks.forEach(task => {
                 const row = `<tr>
                         <td>${task.id}</td>
@@ -218,15 +210,13 @@
         }
     }
 
-    // 3. שליחת משימה חדשה לשרת
     document.getElementById('taskForm').addEventListener('submit', async function(event) {
-        event.preventDefault(); // מניעת רענון הדף בעת שליחת הטופס
+        event.preventDefault();
 
         const type = document.getElementById('taskType').value;
         const priority = parseInt(document.getElementById('priority').value);
         const messageBox = document.getElementById('formMessage');
 
-        // בניית אובייקט ה-JSON בהתאם ל-DTO בשרת שלך
         const requestBody = {
             type: type,
             priority: priority,
@@ -247,12 +237,10 @@
                 messageBox.style.color = "green";
                 messageBox.innerText = "Success: " + responseText;
             } else {
-                // טיפול ב-Backpressure (שגיאת 503 מהשרת שלך)
                 messageBox.style.color = "red";
                 messageBox.innerText = "Error: " + responseText;
             }
 
-            // משיכת נתונים מיידית לאחר הוספה כדי לראות את השינוי
             fetchQueueStatus();
             fetchAllTasks();
 
@@ -262,7 +250,6 @@
         }
     });
 
-    // 4. הפעלה מחזורית (Polling) - כל שנייה נמשוך נתונים מהשרת
     setInterval(() => {
         fetchQueueStatus();
         fetchAllTasks();
