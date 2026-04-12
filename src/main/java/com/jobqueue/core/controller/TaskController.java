@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST Controller for managing tasks in the job queue.
@@ -88,5 +90,19 @@ public class TaskController {
                 ))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<TaskResponseDTO>> getAllTasks() {
+        List<TaskResponseDTO> tasks = taskRepository.findAll().stream()
+                .map(entity -> new TaskResponseDTO(
+                        entity.getId(),
+                        entity.getTaskType(),
+                        entity.getStatus(),
+                        entity.getResult()
+                ))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(tasks);
     }
 }
