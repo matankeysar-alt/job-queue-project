@@ -57,6 +57,6 @@ Phase 8: Packaging & Release (Deployment & Portfolio)
 
 [x] Package project into a Docker Container.
 
-[ ] Write a professional GitHub README.md (incl. screenshots, architecture explanation, and QA summary).
+[x] Write a professional GitHub README.md (incl. screenshots, architecture explanation, and QA summary).
 
-[ ] Add project to Resume and LinkedIn profile.
+[x] Add project to Resume and LinkedIn profile.
