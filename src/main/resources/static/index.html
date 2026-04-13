@@ -99,10 +99,12 @@
 
         th { background-color: #f8f9fa; }
 
+        /* Status Colors */
         .status-PENDING { color: var(--warning); font-weight: bold; }
         .status-RUNNING { color: var(--accent-color); font-weight: bold; }
         .status-COMPLETED { color: var(--success); font-weight: bold; }
         .status-FAILED { color: var(--danger); font-weight: bold; }
+        .status-REJECTED_QUEUE_FULL { color: var(--danger); font-weight: bold; } /* הוספנו את הצבע האדום לסטטוס הדחייה */
     </style>
 </head>
 <body>
@@ -255,11 +257,8 @@
         fetchAllTasks();
     }, 1000);
 
-    // הפעלה ראשונית בעת טעינת הדף
     fetchQueueStatus();
     fetchAllTasks();
 </script>
 </body>
 </html>
-
-

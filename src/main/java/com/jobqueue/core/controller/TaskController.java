@@ -62,8 +62,15 @@ public class TaskController {
 
         if (isEnqueued) {
             return ResponseEntity.ok("Task [" + taskId + "] of type '" + request.type() + "' with Priority [" + priority + "] saved and enqueued.");
-        } else {
-            /* Applying Backpressure */
+        }
+
+        else {
+            /* Applying Backpressure: Update DB to reflect rejection */
+            taskRepository.findById(taskId).ifPresent(taskEntity -> {
+                taskEntity.setStatus("REJECTED_QUEUE_FULL");
+                taskRepository.save(taskEntity);
+            });
+
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("Backpressure: Task " + taskId + " saved to DB but queue is full. Try again later.");
         }
